@@ -1,0 +1,796 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyZone Café Pro - Patio Santa Fe</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="sky-dark-theme">
+
+    <div id="login-screen" class="login-overlay">
+        <div class="login-box">
+            <div class="login-header">
+                <i class="fa-solid fa-bounce fa-jedi"></i>
+                <h2>SKYZONE <span class="orange-txt">CAFÉ</span></h2>
+                <small>Patio Santa Fe • Autenticación</small>
+            </div>
+            <form id="login-form">
+                <div class="input-group">
+                    <label><i class="fa-solid fa-user"></i> ID Usuario</label>
+                    <input type="text" id="login-user" placeholder="Usuario" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fa-solid fa-lock"></i> PIN Acceso</label>
+                    <input type="password" id="login-pass" placeholder="••••" required>
+                </div>
+                <div class="error-txt" id="login-error">Credenciales incorrectas.</div>
+                <button type="submit" class="btn-accent">Iniciar Turno</button>
+            </form>
+            <div class="login-footer">
+                <p>Gerente: <code>admin</code> / PIN: <code>1234</code><br>Cajero: <code>staff1</code> / PIN: <code>4321</code></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="sky-app hidden" id="main-app">
+        <header class="sky-header">
+            <div class="brand">
+                <i class="fa-solid fa-up-long logo-bounce"></i>
+                <div>
+                    <h1>SKY<span class="orange-txt">ZONE</span></h1>
+                    <small id="user-badge">Cargando...</small>
+                </div>
+            </div>
+            <div class="header-controls">
+                <button id="theme-toggle" class="btn-tool" title="Alternar Vista Visual">
+                    <i class="fa-solid fa-circle-half-stroke"></i>
+                </button>
+                <button id="btn-view-manager" class="btn-role-toggle hidden">
+                    <i class="fa-solid fa-shield-halved"></i> Operaciones y Almacén
+                </button>
+                <button id="btn-view-pos" class="btn-role-toggle active">
+                    <i class="fa-solid fa-cash-register"></i> Punto de Venta
+                </button>
+                <button id="btn-logout" class="btn-tool logout">
+                    <i class="fa-solid fa-power-off"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="sky-main">
+            <section id="pane-pos" class="app-pane active">
+                <div class="pos-layout">
+                    
+                    <div class="menu-container">
+                        <div class="search-wrapper">
+                            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                            <input type="text" id="search-bar" placeholder="Buscar pizza, alitas, combos, refrescos...">
+                        </div>
+
+                        <div class="category-tabs">
+                            <button class="cat-btn active" data-cat="all">Todo el Menú</button>
+                            <button class="cat-btn" data-cat="combos">Combos Pro</button>
+                            <button class="cat-btn" data-cat="alimentos">Snacks</button>
+                            <button class="cat-btn" data-cat="bebidas">Bebidas</button>
+                        </div>
+                        <div class="products-grid" id="products-grid">
+                            </div>
+                    </div>
+
+                    <div class="cart-container">
+                        <h3><i class="fa-solid fa-basket-shopping"></i> Comanda Activa</h3>
+                        <div class="cart-items" id="cart-items">
+                            <div class="empty-cart-msg">Caja lista para recibir comanda.</div>
+                        </div>
+                        
+                        <div class="cart-summary">
+                            <div class="payment-methods">
+                                <label class="pay-option">
+                                    <input type="radio" name="pay-method" value="Efectivo" checked>
+                                    <span><i class="fa-solid fa-money-bill-1"></i> Efectivo</span>
+                                </label>
+                                <label class="pay-option">
+                                    <input type="radio" name="pay-method" value="Tarjeta">
+                                    <span><i class="fa-solid fa-credit-card"></i> Tarjeta</span>
+                                </label>
+                            </div>
+
+                            <div class="tip-section">
+                                <span>Propina Staff:</span>
+                                <div class="tip-buttons">
+                                    <button class="btn-tip" data-tip="0">0%</button>
+                                    <button class="btn-tip active" data-tip="10">10%</button>
+                                    <button class="btn-tip" data-tip="15">15%</button>
+                                </div>
+                            </div>
+
+                            <div class="summary-row">
+                                <span>Subtotal</span>
+                                <span id="cart-subtotal">$0.00</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Propina</span>
+                                <span id="cart-tip">$0.00</span>
+                            </div>
+                            <div class="summary-row total">
+                                <span>Total</span>
+                                <span id="cart-total">$0.00</span>
+                            </div>
+                            <button class="btn-accent" id="btn-checkout" disabled>
+                                <i class="fa-solid fa-print"></i> Cobrar y Mandar a Cocina
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <section id="pane-manager" class="app-pane">
+                <div class="section-title">
+                    <h2>Panel de Control e Inventarios Financieros</h2>
+                    <p>Monitoreo estricto de insumos de cocina para evitar mermas en Patio Santa Fe.</p>
+                </div>
+
+                <div class="kpi-grid">
+                    <div class="kpi-card text-orange">
+                        <i class="fa-solid fa-chart-bar"></i>
+                        <div>
+                            <h4>Ingreso Bruto Café</h4>
+                            <p id="kpi-total-sales">$0.00</p>
+                        </div>
+                    </div>
+                    <div class="kpi-card text-blue">
+                        <i class="fa-solid fa-cookie-bite"></i>
+                        <div>
+                            <h4>Insumos Críticos</h4>
+                            <p id="kpi-stock-alerts">0 Alertas</p>
+                        </div>
+                    </div>
+                    <div class="kpi-card text-green">
+                        <i class="fa-solid fa-wallet"></i>
+                        <div>
+                            <h4>Cortes de Caja</h4>
+                            <p id="kpi-sales-count">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="manager-grid">
+                    <div class="ops-card">
+                        <h3>Bitácora de Ventas e Historial</h3>
+                        <div class="table-container">
+                            <table class="sky-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ticket</th>
+                                        <th>Cajero</th>
+                                        <th>Monto</th>
+                                        <th>Método</th>
+                                        <th>Hora</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="manager-sales-history"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="ops-card">
+                        <h3>Stock de Materia Prima en Pista</h3>
+                        <div class="table-container">
+                            <table class="sky-table">
+                                <thead>
+                                    <tr>
+                                        <th>Insumo</th>
+                                        <th>Stock Actual</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="manager-inventory-status"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="ticket-modal" class="modal-overlay">
+        <div class="modal-box">
+            <i class="fa-solid fa-circle-check success-icon"></i>
+            <h2>Venta Autorizada</h2>
+            <div class="ticket-preview" id="ticket-preview-content"></div>
+            <button class="btn-accent" id="btn-close-modal">Listo / Siguiente Orden</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+<style>/* PALETA CORPORATIVA DE COLORES SKY ZONE OFICIAL */
+.sky-dark-theme {
+    --bg-base: #020617;           
+    --bg-surface: #0f172a;        
+    --bg-element: #1e293b;        
+    --sky-orange: #ff5500;        
+    --sky-orange-dim: #cc4400;
+    --sky-blue: #0055ff;          
+    --sky-blue-dim: #003cc2;
+    --text-white: #ffffff;
+    --text-gray: #64748b;
+    --border-grid: #334155;
+    --sky-green: #00e676;
+}
+
+.sky-light-theme {
+    --bg-base: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-element: #f1f5f9;
+    --sky-orange: #ff5500;
+    --sky-orange-dim: #cc4400;
+    --sky-blue: #0044ff;
+    --sky-blue-dim: #002ec4;
+    --text-white: #0f172a;
+    --text-gray: #64748b;
+    --border-grid: #cbd5e1;
+    --sky-green: #10b981;
+}
+
+* {
+    margin: 0; padding: 0; box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-base);
+    color: var(--text-white);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    transition: background 0.3s ease;
+}
+
+.hidden { display: none !important; }
+.orange-txt { color: var(--sky-orange); }
+
+/* BARRA DE BÚSQUEDA */
+.search-wrapper {
+    position: relative;
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+.search-wrapper .search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-gray);
+    font-size: 1.2rem;
+}
+
+#search-bar {
+    width: 100%;
+    background-color: var(--bg-surface);
+    border: 2px solid var(--border-grid);
+    color: var(--text-white);
+    padding: 1rem 1rem 1rem 3rem;
+    border-radius: 14px;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.25s ease;
+}
+
+#search-bar:focus {
+    border-color: var(--sky-blue);
+    box-shadow: 0 0 15px rgba(0, 85, 255, 0.25);
+}
+
+/* SCREEN LOGIN */
+.login-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.95); display: flex;
+    align-items: center; justify-content: center; z-index: 9999;
+}
+
+.login-box {
+    background-color: var(--bg-surface); border: 2px solid var(--sky-orange);
+    padding: 3rem; border-radius: 20px; width: 100%; max-width: 420px;
+    box-shadow: 0 0 30px rgba(255, 85, 0, 0.2);
+}
+
+.login-header { text-align: center; margin-bottom: 2rem; }
+.login-header i { font-size: 3rem; color: var(--sky-blue); }
+.login-header h2 { font-size: 2rem; font-weight: 900; margin-top: 0.5rem; }
+
+.input-group { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem; }
+.input-group label { font-size: 0.85rem; text-transform: uppercase; color: var(--text-gray); font-weight: bold; }
+.input-group input {
+    background-color: var(--bg-base); border: 1px solid var(--border-grid);
+    padding: 1rem; color: var(--text-white); border-radius: 10px; outline: none; font-size: 1rem;
+}
+.input-group input:focus { border-color: var(--sky-orange); box-shadow: 0 0 10px rgba(255,85,0,0.5); }
+
+.error-txt { color: #ff3333; margin-bottom: 1rem; font-size: 0.9rem; text-align: center; display: none; }
+
+/* HEADER */
+.sky-header {
+    background-color: var(--bg-surface); padding: 1rem 2.5rem;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 5px solid var(--sky-orange);
+}
+.brand { display: flex; align-items: center; gap: 1rem; }
+.brand i { font-size: 2rem; color: var(--sky-orange); }
+.brand h1 { font-size: 1.6rem; font-weight: 900; letter-spacing: -1px; }
+
+.header-controls { display: flex; align-items: center; gap: 1rem; }
+.btn-tool {
+    background-color: var(--bg-element); border: 1px solid var(--border-grid);
+    color: var(--text-white); width: 45px; height: 45px; border-radius: 12px; cursor: pointer;
+}
+.btn-tool:hover { background-color: var(--sky-orange); color: white; }
+.btn-tool.logout:hover { background-color: #ff3333; }
+
+.btn-role-toggle {
+    background-color: var(--sky-blue); border: none; color: white;
+    padding: 0.75rem 1.5rem; border-radius: 30px; font-weight: bold; cursor: pointer;
+}
+.btn-role-toggle.active { background-color: var(--sky-orange); }
+
+/* WORKSPACE PANES */
+.sky-main { padding: 2rem; max-width: 1600px; margin: 0 auto; }
+.app-pane { display: none; }
+.app-pane.active { display: block; }
+
+/* REJILLA DE VENTAS */
+.pos-layout { display: grid; grid-template-columns: 1fr 400px; gap: 2rem; }
+@media (max-width: 1100px) { .pos-layout { grid-template-columns: 1fr; } }
+
+.category-tabs { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; overflow-x: auto; }
+.cat-btn {
+    background-color: var(--bg-surface); border: 1px solid var(--border-grid);
+    color: var(--text-white); padding: 0.75rem 1.5rem; border-radius: 12px; cursor: pointer; font-weight: bold;
+}
+.cat-btn.active, .cat-btn:hover { background-color: var(--sky-blue); border-color: var(--sky-blue); color: white; }
+
+/* NUEVO ESTILO PREMIUM DE TARJETAS DE PRODUCTOS */
+.products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; }
+
+.prod-card {
+    background-color: var(--bg-surface); 
+    border: 2px solid var(--border-grid);
+    padding: 1.5rem; 
+    border-radius: 20px; 
+    display: flex; 
+    flex-direction: column;
+    justify-content: space-between; 
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+    cursor: pointer; 
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.prod-card:hover { 
+    border-color: var(--sky-orange); 
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(255, 85, 0, 0.15);
+}
+
+.prod-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+    background-color: var(--sky-blue);
+}
+.prod-card:hover::before {
+    background-color: var(--sky-orange);
+}
+
+.stock-tag {
+    position: absolute; top: 12px; right: 12px; font-size: 0.75rem;
+    padding: 0.25rem 0.6rem; border-radius: 20px; font-weight: bold; background-color: rgba(0,0,0,0.4);
+    backdrop-filter: blur(4px);
+}
+.stock-tag.low { color: var(--sky-orange); border: 1px solid var(--sky-orange); }
+
+.prod-info h4 { font-size: 1.2rem; margin-bottom: 0.5rem; font-weight: 800; letter-spacing: -0.5px; }
+.prod-info p { color: var(--text-gray); font-size: 0.85rem; margin-bottom: 2rem; line-height: 1.4; }
+
+.prod-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+.prod-price { 
+    font-size: 1.6rem; 
+    font-weight: 900; 
+    color: var(--text-white);
+    background: linear-gradient(135deg, var(--sky-orange), #ff8800);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.btn-add-item {
+    background-color: var(--sky-blue); border: none; color: white;
+    width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-add-item i { font-size: 1.1rem; }
+.prod-card:hover .btn-add-item { background-color: var(--sky-orange); }
+.prod-card.out-of-stock { opacity: 0.3; cursor: not-allowed; }
+
+/* CAJA Y RESUMEN */
+.cart-container {
+    background-color: var(--bg-surface); border: 2px solid var(--border-grid);
+    border-radius: 20px; padding: 1.75rem; display: flex; flex-direction: column;
+    height: calc(100vh - 160px); position: sticky; top: 20px;
+}
+.cart-items { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1rem; }
+.empty-cart-msg { text-align: center; color: var(--text-gray); margin-top: 6rem; font-size: 0.95rem; }
+
+.cart-row {
+    display: flex; justify-content: space-between; align-items: center;
+    background-color: var(--bg-element); padding: 1rem; border-radius: 12px;
+}
+.cart-row-details h5 { font-size: 0.95rem; font-weight: bold; }
+.cart-row-details small { color: var(--sky-blue); font-weight: bold; }
+.cart-row-actions { display: flex; align-items: center; gap: 0.75rem; }
+.btn-qty { background: none; border: none; color: var(--text-white); font-size: 1.1rem; cursor: pointer; }
+
+/* ADICIONALES DE COBRO */
+.payment-methods { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem; }
+.pay-option {
+    background-color: var(--bg-element); border: 1px solid var(--border-grid);
+    padding: 0.75rem; text-align: center; border-radius: 10px; cursor: pointer; display: block;
+}
+.pay-option input { display: none; }
+.pay-option:has(input:checked) { border-color: var(--sky-orange); background-color: rgba(255,85,0,0.1); color: var(--sky-orange); font-weight: bold; }
+
+.tip-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; font-size: 0.9rem; }
+.tip-buttons { display: flex; gap: 0.25rem; }
+.btn-tip { background-color: var(--bg-element); border: 1px solid var(--border-grid); color: white; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; }
+.btn-tip.active { background-color: var(--sky-green); color: black; font-weight: bold; border-color: var(--sky-green); }
+
+.cart-summary { border-top: 2px dashed var(--border-grid); padding-top: 1rem; }
+.summary-row { display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: var(--text-gray); }
+.summary-row.total { font-size: 1.6rem; color: var(--text-white); font-weight: 900; margin: 0.75rem 0; border-top: 1px solid var(--border-grid); padding-top: 0.5rem; }
+
+.btn-accent {
+    width: 100%; background-color: var(--sky-orange); color: white; border: none;
+    padding: 1.1rem; font-weight: bold; border-radius: 12px; cursor: pointer; font-size: 1.1rem; text-transform: uppercase;
+}
+.btn-accent:hover:not(:disabled) { background-color: var(--sky-orange-dim); }
+.btn-accent:disabled { background-color: var(--bg-element); color: var(--text-gray); cursor: not-allowed; border: 1px solid var(--border-grid); }
+
+/* TABLAS GERENCIALES */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+.kpi-card { background-color: var(--bg-surface); border-left: 5px solid var(--sky-blue); padding: 1.5rem; border-radius: 12px; display: flex; align-items: center; gap: 1.5rem; }
+.kpi-card.text-orange { border-left-color: var(--sky-orange); }
+.kpi-card.text-green { border-left-color: var(--sky-green); }
+.kpi-card i { font-size: 2.5rem; }
+.kpi-card p { font-size: 1.8rem; font-weight: 900; }
+
+.manager-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem; }
+.ops-card { background-color: var(--bg-surface); padding: 2rem; border-radius: 16px; border: 1px solid var(--border-grid); }
+.ops-card h3 { font-size: 1.2rem; margin-bottom: 1.5rem; letter-spacing: -0.5px; text-transform: uppercase; }
+
+.sky-table { width: 100%; border-collapse: collapse; text-align: left; }
+.sky-table th, .sky-table td { padding: 1rem; border-bottom: 1px solid var(--border-grid); font-size: 0.9rem; }
+.sky-table th { background-color: var(--bg-element); color: var(--text-gray); font-weight: bold; }
+
+.badge-alert { background-color: rgba(255,85,0,0.15); color: var(--sky-orange); padding: 0.25rem 0.5rem; border-radius: 6px; font-weight: bold; }
+.badge-ok { background-color: rgba(0,230,118,0.15); color: var(--sky-green); padding: 0.25rem 0.5rem; border-radius: 6px; font-weight: bold; }
+
+/* MODAL */
+.modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background-color: rgba(0,0,0,0.85); display:none; align-items:center; justify-content:center; z-index:10000; }
+.modal-box { background-color: #ffffff; color: #000000; padding: 2.5rem; border-radius: 20px; width: 100%; max-width: 380px; text-align: center; }
+.success-icon { font-size: 3.5rem; color: var(--sky-green); margin-bottom: 1rem; }
+.ticket-preview { background-color: #f8fafc; border: 2px dashed #cbd5e1; padding: 1.25rem; border-radius: 8px; text-align: left; margin: 1.5rem 0; font-family: monospace; font-size: 0.85rem; }
+</style><script>/**
+ * SkyZone ERP Premium v3.0 - Sucursal Patio Santa Fe
+ * Buscador en Tiempo Real Integrado y UI Renovada
+ */
+
+const DATA_STORE = {
+    users: [
+        { uid: "admin", pin: "1234", name: "Gerente Santa Fe", role: "Gerente" },
+        { uid: "staff1", pin: "4321", name: "Cajero Turno A", role: "Cajero" }
+    ],
+    products: [
+        { id: "c1", name: "Combo Jumpers Pizza", desc: "Pizza Personal + Refresco Grande + Calcetines Sky", price: 349, cat: "combos", recipe: { basesPizza: 1, vasos: 1 } },
+        { id: "c2", name: "Combo Alitas Extremo", desc: "6 Alitas Sazonadas + Papas Medianas + Vaso Refresco", price: 289, cat: "combos", recipe: { alitasPzas: 6, papasGrs: 150, vasos: 1 } },
+        { id: "a1", name: "Pizza Individual Pepperoni", desc: "Artesanal horneada al momento", price: 195, cat: "alimentos", recipe: { basesPizza: 1 } },
+        { id: "a2", name: "Orden Alitas Buffalo", desc: "8 Alitas crujientes con aderezo ranch", price: 155, cat: "alimentos", recipe: { alitasPzas: 8 } },
+        { id: "a3", name: "Papas Fritas Cubo", desc: "Porción de papas fritas sazonadas", price: 70, cat: "alimentos", recipe: { papasGrs: 150 } },
+        { id: "b1", name: "Refresco de Máquina 32oz", desc: "Sabor a elegir con hielo", price: 55, cat: "bebidas", recipe: { vasos: 1 } },
+        { id: "b2", name: "Café Americano 12oz", desc: "Grano premium molido", price: 45, cat: "bebidas", recipe: { vasos: 1 } }
+    ],
+    inventory: {
+        basesPizza: { name: "Bases de Pizza Pre-Hechas", stock: 12, min: 4 },
+        alitasPzas: { name: "Alitas de Pollo (Piezas)", stock: 80, min: 25 },
+        papasGrs: { name: "Papas Congeladas (Gramos)", stock: 3000, min: 1000 },
+        vasos: { name: "Vasos Desechables SkyZone", stock: 150, min: 20 }
+    }
+};
+
+let App = {
+    user: null,
+    cart: [],
+    tipPercent: 10,
+    currentCategory: "all",
+    searchQuery: "",
+    salesLog: [
+        { id: "SZ-881", seller: "Gerente Santa Fe", total: 404, method: "Tarjeta", time: "11:15" },
+        { id: "SZ-882", seller: "Cajero Turno A", total: 195, method: "Efectivo", time: "11:40" }
+    ]
+};
+
+const DOM = {
+    screenLogin: document.getElementById('login-screen'),
+    formLogin: document.getElementById('login-form'),
+    inUser: document.getElementById('login-user'),
+    inPass: document.getElementById('login-pass'),
+    txtError: document.getElementById('login-error'),
+    appMain: document.getElementById('main-app'),
+    lblUser: document.getElementById('user-badge'),
+    btnTheme: document.getElementById('theme-toggle'),
+    btnManager: document.getElementById('btn-view-manager'),
+    btnPos: document.getElementById('btn-view-pos'),
+    btnLogout: document.getElementById('btn-logout'),
+    panePos: document.getElementById('pane-pos'),
+    paneManager: document.getElementById('pane-manager'),
+    gridProducts: document.getElementById('products-grid'),
+    tabsCategory: document.querySelectorAll('.cat-btn'),
+    searchBar: document.getElementById('search-bar'),
+    boxCartItems: document.getElementById('cart-items'),
+    valSubtotal: document.getElementById('cart-subtotal'),
+    valTip: document.getElementById('cart-tip'),
+    valTotal: document.getElementById('cart-total'),
+    btnCheckout: document.getElementById('btn-checkout'),
+    modalTicket: document.getElementById('ticket-modal'),
+    previewTicket: document.getElementById('ticket-preview-content'),
+    btnCloseModal: document.getElementById('btn-close-modal'),
+    kpiRevenue: document.getElementById('kpi-total-sales'),
+    kpiAlerts: document.getElementById('kpi-stock-alerts'),
+    kpiCount: document.getElementById('kpi-sales-count'),
+    tableHistory: document.getElementById('manager-sales-history'),
+    tableInventory: document.getElementById('manager-inventory-status')
+};
+
+// LOGIN LOGIC
+DOM.formLogin.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const matched = DATA_STORE.users.find(u => u.uid === DOM.inUser.value.trim() && u.pin === DOM.inPass.value.trim());
+    if (matched) {
+        App.user = matched;
+        DOM.txtError.style.display = 'none';
+        DOM.formLogin.reset();
+        DOM.screenLogin.style.display = 'none';
+        DOM.appMain.classList.remove('hidden');
+        DOM.lblUser.textContent = `${matched.name} [${matched.role}]`;
+        
+        if (matched.role === "Gerente") DOM.btnManager.classList.remove('hidden');
+        else DOM.btnManager.classList.add('hidden');
+        
+        initPOS();
+    } else {
+        DOM.txtError.style.display = 'block';
+    }
+});
+
+DOM.btnLogout.addEventListener('click', () => {
+    App.user = null; App.cart = [];
+    DOM.appMain.classList.add('hidden');
+    DOM.screenLogin.style.display = 'flex';
+});
+
+DOM.btnTheme.addEventListener('click', () => {
+    document.body.className = document.body.classList.contains('sky-dark-theme') ? "sky-light-theme" : "sky-dark-theme";
+});
+
+function changeWorkspace(target) {
+    if (target === "pos") {
+        DOM.btnPos.classList.add('active'); DOM.btnManager.classList.remove('active');
+        DOM.panePos.classList.add('active'); DOM.paneManager.classList.remove('active');
+        renderMasterMenu();
+    } else {
+        DOM.btnManager.classList.add('active'); DOM.btnPos.classList.remove('active');
+        DOM.paneManager.classList.add('active'); DOM.panePos.classList.remove('active');
+        renderManagerAnalytics();
+    }
+}
+DOM.btnPos.addEventListener('click', () => changeWorkspace("pos"));
+DOM.btnManager.addEventListener('click', () => changeWorkspace("manager"));
+
+// --- LOGICA DE RENDERIZADO Y BUSCADOR REAL-TIME ---
+function initPOS() {
+    renderMasterMenu();
+    renderCartView();
+    setupTipEngine();
+    
+    // Escucha de la barra de búsqueda
+    DOM.searchBar.addEventListener('input', (e) => {
+        App.searchQuery = e.target.value.toLowerCase().trim();
+        renderMasterMenu();
+    });
+}
+
+function renderMasterMenu() {
+    let list = DATA_STORE.products;
+    
+    // 1. Filtrar por Categoría
+    if(App.currentCategory !== "all") {
+        list = list.filter(p => p.cat === App.currentCategory);
+    }
+    
+    // 2. Filtrar por Texto en Barra de Búsqueda
+    if(App.searchQuery !== "") {
+        list = list.filter(p => p.name.toLowerCase().includes(App.searchQuery) || p.desc.toLowerCase().includes(App.searchQuery));
+    }
+
+    if(list.length === 0) {
+        DOM.gridProducts.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-gray); padding: 3rem;">No se encontraron productos que coincidan.</div>`;
+        return;
+    }
+
+    DOM.gridProducts.innerHTML = list.map(p => {
+        const outOfStock = isProductOutOfStock(p);
+        const stockStatusText = getProductStockText(p);
+
+        return `
+            <div class="prod-card ${outOfStock ? 'out-of-stock' : ''}" onclick="${outOfStock ? '' : `addItemToCart('${p.id}')`}">
+                ${stockStatusText}
+                <div class="prod-info">
+                    <h4>${p.name}</h4>
+                    <p>${p.desc}</p>
+                </div>
+                <div class="prod-footer">
+                    <span class="prod-price">$${p.price}</span>
+                    <button class="btn-add-item" ${outOfStock ? 'disabled' : ''}><i class="fa-solid fa-plus"></i></button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function isProductOutOfStock(product) {
+    for (const [ingredient, qtyRequired] of Object.entries(product.recipe)) {
+        if (DATA_STORE.inventory[ingredient].stock < qtyRequired) return true;
+    }
+    return false;
+}
+
+function getProductStockText(product) {
+    let minStock = Infinity;
+    for (const [ingredient, qtyRequired] of Object.entries(product.recipe)) {
+        let multi = Math.floor(DATA_STORE.inventory[ingredient].stock / qtyRequired);
+        if (multi < minStock) minStock = multi;
+    }
+    if (minStock === 0) return `<span class="stock-tag low">AGOTADO</span>`;
+    if (minStock <= 3) return `<span class="stock-tag low">¡ÚLTIMOS ${minStock}!</span>`;
+    return '';
+}
+
+DOM.tabsCategory.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        DOM.tabsCategory.forEach(t => t.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+        App.currentCategory = e.currentTarget.getAttribute('data-cat');
+        renderMasterMenu();
+    });
+});
+
+window.addItemToCart = function(id) {
+    const p = DATA_STORE.products.find(prod => prod.id === id);
+    const existing = App.cart.find(c => c.product.id === id);
+    if (existing) {
+        existing.qty++;
+        if (isProductOutOfStock(p)) {
+            existing.qty--;
+            alert("Insumos insuficientes en cocina.");
+            return;
+        }
+    } else {
+        App.cart.push({ product: p, qty: 1 });
+    }
+    renderCartView();
+};
+
+window.modifyCartQty = function(id, delta) {
+    const target = App.cart.find(c => c.product.id === id);
+    if (!target) return;
+    target.qty += delta;
+    if(delta > 0 && isProductOutOfStock(target.product)) {
+        target.qty--;
+        alert("Límite de stock alcanzado.");
+        return;
+    }
+    if(target.qty <= 0) App.cart = App.cart.filter(c => c.product.id !== id);
+    renderCartView();
+};
+
+function setupTipEngine() {
+    const tipBtns = document.querySelectorAll('.btn-tip');
+    tipBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            tipBtns.forEach(b => b.classList.remove('active'));
+            e.currentTarget.classList.add('active');
+            App.tipPercent = parseInt(e.currentTarget.getAttribute('data-tip'));
+            renderCartView();
+        });
+    });
+}
+
+function renderCartView() {
+    if (App.cart.length === 0) {
+        DOM.boxCartItems.innerHTML = `<div class="empty-cart-msg">Caja ready. Selecciona artículos.</div>`;
+        DOM.valSubtotal.textContent = "$0.00"; DOM.valTip.textContent = "$0.00"; DOM.valTotal.textContent = "$0.00";
+        DOM.btnCheckout.disabled = true;
+        return;
+    }
+    let subtotal = App.cart.reduce((sum, item) => sum + (item.product.price * item.qty), 0);
+    DOM.boxCartItems.innerHTML = App.cart.map(item => `
+        <div class="cart-row">
+            <div class="cart-row-details">
+                <h5>${item.product.name}</h5>
+                <small>$${item.product.price} x ${item.qty}</small>
+            </div>
+            <div class="cart-row-actions">
+                <button class="btn-qty" onclick="modifyCartQty('${item.product.id}', -1)"><i class="fa-solid fa-square-minus"></i></button>
+                <strong>${item.qty}</strong>
+                <button class="btn-qty" onclick="modifyCartQty('${item.product.id}', 1)"><i class="fa-solid fa-square-plus"></i></button>
+            </div>
+        </div>
+    `).join('');
+
+    let tipAmount = Math.round(subtotal * (App.tipPercent / 100));
+    DOM.valSubtotal.textContent = `$${subtotal}.00`;
+    DOM.valTip.textContent = `$${tipAmount}.00`;
+    DOM.valTotal.textContent = `$${subtotal + tipAmount}.00`;
+    DOM.btnCheckout.disabled = false;
+}
+
+DOM.btnCheckout.addEventListener('click', () => {
+    App.cart.forEach(item => {
+        for (const [ing, qty] of Object.entries(item.product.recipe)) {
+            DATA_STORE.inventory[ing].stock -= (qty * item.qty);
+        }
+    });
+    const ticketId = `SZ-${Math.floor(100 + Math.random() * 900)}`;
+    const paymentSelected = document.querySelector('input[name="pay-method"]:checked').value;
+    const finalBill = parseInt(DOM.valTotal.textContent.replace('$',''));
+    const now = new Date();
+    const timeString = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+    App.salesLog.unshift({ id: ticketId, seller: App.user.name, total: finalBill, method: paymentSelected, time: timeString });
+
+    DOM.previewTicket.innerHTML = `
+        <div style="text-align:center;"><strong>SKYZONE PATIO SANTA FE</strong><br>Comanda de Producción</div>
+        <div>----------------------------------------</div>
+        <div>Ticket Ref: ${ticketId} | Hora: ${timeString}</div>
+        <div>Atendió: ${App.user.name} [${paymentSelected}]</div>
+        <div>----------------------------------------</div>
+        ${App.cart.map(c => `<div>${c.qty}x ${c.product.name.substring(0,22)}</div>`).join('')}
+        <div>----------------------------------------</div>
+        <div><strong>TOTAL CON PROPINAS: $${finalBill}.00</strong></div>
+    `;
+    DOM.modalTicket.style.display = "flex";
+});
+
+DOM.btnCloseModal.addEventListener('click', () => {
+    DOM.modalTicket.style.display = "none";
+    App.cart = [];
+    DOM.searchBar.value = "";
+    App.searchQuery = "";
+    renderCartView();
+    renderMasterMenu();
+});
+
+function renderManagerAnalytics() {
+    DOM.tableHistory.innerHTML = App.salesLog.map(s => `<tr><td><code>${s.id}</code></td><td>${s.seller}</td><td style="color:var(--sky-green); font-weight:bold;">$${s.total}.00</td><td>${s.method}</td><td>${s.time} hrs</td></tr>`).join('');
+    let alerts = 0;
+    DOM.tableInventory.innerHTML = Object.entries(DATA_STORE.inventory).map(([key, item]) => {
+        const isLow = item.stock <= item.min;
+        if(isLow) alerts++;
+        return `<tr><td><strong>${item.name}</strong></td><td>${item.stock}</td><td><span class="${isLow ? 'badge-alert' : 'badge-ok'}">${isLow ? '⚠️ SURTIR' : '✔️ OK'}</span></td></tr>`;
+    }).join('');
+    DOM.kpiRevenue.textContent = `$${App.salesLog.reduce((sum, s) => sum + s.total, 0)}.00`;
+    DOM.kpiAlerts.textContent = `${alerts} Alertas`;
+    DOM.kpiCount.textContent = App.salesLog.length;
+}
+</script>
